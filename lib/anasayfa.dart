@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
-import 'package:get_it/get_it.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
@@ -28,31 +27,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   TextEditingController name = TextEditingController();
-  TextEditingController password = TextEditingController();
-  String? uid="";
-  String src="";
 
   var supabaseurl = "https://bnjptzhrjghpqqnoytxf.supabase.co";
   var supabasekey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJuanB0emhyamdocHFxbm95dHhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDg2MjYxMzUsImV4cCI6MTk2NDIwMjEzNX0.nTA6kwHsiIYobGpzIQhaLoJbf1n6tqTBPu11tU0zJ3Y";
 
-
-  login()
-  async {
-    var client = SupabaseClient(supabaseurl, supabasekey);
-    final result = await client.auth.signIn(email: name.text, password: password.text);
-    uid= result.user?.id;
-
-    print(result.user?.id);
-
-  }
 
   insertUser() async {
     var client = SupabaseClient(supabaseurl, supabasekey);
 
 
     var response = await client.from('kisiler').insert([
-      {'name': name.text, 'uid': uid, 'pic_url': src}
+      {'name': 'deneme'}
     ]).execute();
+
+    print(response.data);
 
   }
 
@@ -61,43 +49,17 @@ class _HomePageState extends State<HomePage> {
     FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(allowMultiple: false, dialogTitle: "Seçiniz");
     final file = File(pickedFile!.files.first.path.toString());
     var client = SupabaseClient(supabaseurl, supabasekey);
-    await client.storage.from("profile-photos").upload(uid!, file).then((value) =>
+    await client.storage.from("profile-photos").upload(pickedFile.files.first.name, file).then((value) =>
     {
       print(value)
     }
     );
-
-    print("DOSYA İSMİ $uid");
-    final urlResponse = await client.storage.from('profile-photos').createSignedUrl(uid!, 60);
-
-    src=urlResponse.data!;
-
-    setState(() {
-
-    });
 
   }
 
   readImage()
   async {
     var client = SupabaseClient(supabaseurl, supabasekey);
-  }
-
-  signUp()
-  async {
-
-    //GetIt getIt = GetIt.instance;
-    //getIt.registerSingleton<SupabaseClient>(SupabaseClient(supabaseurl,supabasekey));
-
-    final result = await GetIt.instance<SupabaseClient>().auth.signUp(name.text, password.text).then((value) =>
-
-    {
-    print(value.data?.user?.email)
-    });
-
-
-    //print(result.error);
-
   }
 
 
@@ -114,43 +76,11 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
 
-                Container(
-                  width: 200,
-                  child: TextFormField(
-                    controller: name,
-                  ),
-                )
-              ],
-            ),
-            Row(
-              children: [
-
-                Container(
-                  width: 200,
-                  child: TextFormField(
-                    controller: password,
-                  ),
-                )
-              ],
-            ),
-            Row(
-              children: [
-
                 TextButton(
                     onPressed: (){
-                      login();
+                      insertUser();
                     },
-                    child: Text("Giriş"))
-              ],
-            ),
-            Row(
-              children: [
-
-                TextButton(
-                    onPressed: (){
-                      signUp();
-                    },
-                    child: Text("Kayıt"))
+                    child: Text("Ekle"))
               ],
             ),
             Row(
@@ -160,16 +90,17 @@ class _HomePageState extends State<HomePage> {
                     onPressed: (){
                       loadImage();
                     },
-                    child: Text("Resim ekle"))
+                    child: Text("Yükle"))
               ],
             ),
             Row(
               children: [
 
-                Container(
-                  width: 300,
-                    height: 300,
-                    child: Image.network(src)),
+                TextButton(
+                    onPressed: (){
+                      readImage();
+                    },
+                    child: Text("Resim oku"))
               ],
             )
           ],

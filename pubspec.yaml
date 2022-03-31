@@ -29,6 +29,7 @@ environment:
 dependencies:
   supabase: ^0.3.0
   file_picker: ^4.5.1
+  get_it: ^7.2.0
   flutter:
     sdk: flutter
 
