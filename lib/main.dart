@@ -49,8 +49,7 @@ class _HomePageState extends State<HomePage> {
   insertUser() async {
     var client = SupabaseClient(supabaseurl, supabasekey);
 
-
-    var response = await client.from('kisiler').insert([
+    await client.from('kisiler').insert([
       {'name': name.text, 'uid': uid, 'pic_url': src}
     ]).execute();
 
@@ -72,31 +71,26 @@ class _HomePageState extends State<HomePage> {
 
     src=urlResponse.data!;
 
+    await client.from('kisiler').update({'pic_url': src}).match({'uid': uid}).execute();// Profil fotoğrafı url'si kişi tablosuna yazılması gerekli. Bunu giriş yaptıktan sonra yapabiliyor.
+
     setState(() {
 
     });
 
   }
 
-  readImage()
-  async {
-    var client = SupabaseClient(supabaseurl, supabasekey);
-  }
-
   signUp()
   async {
 
-    //GetIt getIt = GetIt.instance;
-    //getIt.registerSingleton<SupabaseClient>(SupabaseClient(supabaseurl,supabasekey));
-
-    final result = await GetIt.instance<SupabaseClient>().auth.signUp(name.text, password.text).then((value) =>
-
+    GetIt getIt = GetIt.instance;
+    getIt.registerSingleton<SupabaseClient>(SupabaseClient(supabaseurl,supabasekey));
+    await GetIt.instance<SupabaseClient>().auth.signUp(name.text, password.text).then((value) =>
     {
-    print(value.data?.user?.email)
+      print(value.data?.user?.id),
+      uid=value.data?.user?.id // Posta kutusuna giden emaili doğrulamadan user id gönderilmiyor.
     });
 
-
-    //print(result.error);
+    insertUser();
 
   }
 
@@ -167,7 +161,7 @@ class _HomePageState extends State<HomePage> {
               children: [
 
                 Container(
-                  width: 300,
+                    width: 300,
                     height: 300,
                     child: Image.network(src)),
               ],
@@ -178,5 +172,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
